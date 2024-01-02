@@ -1,34 +1,48 @@
+// Cart.js
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useCart } from '../CartContext';
+import CartItem from './CartItem';
 
-const Cart = ({ cartElements, onClose, onRemove }) => (
-  <div className="cart-overlay">
-    <div className="cart container">
-      <button className="close-btn btn btn-outline-secondary" onClick={onClose}>
-        Close
-      </button>
-      <h2 className="text-center my-4">Your Cart</h2>
-      {cartElements.map((item, index) => (
-        <div key={index} className="cart-item row mb-3 align-items-center">
-          <div className="col-md-4">
-            <img
-              src={item.imageUrl}
-              alt={item.title}
-              className="img-fluid cart-item-image"
-            />
+const Cart = () => {
+  const { cartItems, showCart, toggleCart } = useCart();
+
+  const calculateTotal = () => {
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  return (
+    <div className={`cart ${showCart ? 'open' : 'closed'}`}>
+      {showCart && (
+        <>
+          <div className="d-flex justify-content-between align-items-center p-3 bg-light">
+            <h2>Your Cart</h2>
+            <button type="button" className="btn-close" aria-label="Close" onClick={toggleCart}></button>
           </div>
-          <div className="col-md-8">
-            <h4>{item.title}</h4>
-            <p>₹{item.price}</p>
-            <p>Quantity: {item.quantity}</p>
-            <button className="btn btn-danger" onClick={() => onRemove(index)}>
-              Remove
-            </button>
-          </div>
-        </div>
-      ))}
+          {cartItems.length === 0 ? (
+            <p className="p-3">Your cart is empty.</p>
+          ) : (
+            <>
+              <div className="row cart-item header bg-light p-2">
+                <div className="col">Item</div>
+                <div className="col">Price</div>
+                <div className="col">Quantity</div>
+                <div className="col">Total</div>
+              </div>
+              {cartItems.map((item, index) => (
+                <CartItem key={index} {...item} />
+              ))}
+              <div className="row cart-item total mt-3 p-2 bg-light">
+                <div className="col"></div>
+                <div className="col"></div>
+                <div className="col font-weight-bold">Total:</div>
+                <div className="col font-weight-bold">${calculateTotal()}</div>
+              </div>
+            </>
+          )}
+        </>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 export default Cart;
